@@ -7,7 +7,9 @@ var express 		= require("express"),
 	app 			= express(),
 	bodyParser		= require("body-parser"),
 	mongoose		= require("mongoose"),
+	http 			= require("http"),
 	Campground    	= require("./models/campground"),
+	Comment 		= require("./models/comment"),
 	seedDB			= require("./seeds");
 
 seedDB();
@@ -18,11 +20,10 @@ seedDB();
 var username = process.env.USERNAME;
 var password = process.env.WEBDEVBOOTCAMPPASS;
 mongoose.connect('mongodb+srv://'+username+':'+password+'@data-sodyq.mongodb.net/yelpcamp?retryWrites=true&w=majority', { useNewUrlParser: true });
-
-// EJS
+// File stuff
 app.set("view engine", "ejs");
-// Body parser
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname + "/public"))
 
 // ROUTES
 app.get("/", function(req, res){
@@ -34,13 +35,13 @@ app.get("/campgrounds", function(req, res){
 		if(err){
 			console.log(err);
 		} else {
-            res.render("campgrounds", {campgrounds: allCampgrounds});
+            res.render("campgrounds/index", {campgrounds: allCampgrounds});
 		}
 	});
 });
 // ADD add campground
 app.get("/campgrounds/new", function(req, res){
-	res.render("new");
+	res.render("campgrounds/new");
 });
 // CREATE post to DB
 app.post("/campgrounds", function(req, res){
@@ -56,7 +57,6 @@ app.post("/campgrounds", function(req, res){
 		}
 	});
 
-
 });
 // SHOW show campground
 app.get("/campgrounds/:id", function(req, res) {
@@ -65,14 +65,44 @@ app.get("/campgrounds/:id", function(req, res) {
 			console.log("Error getting Campground");
 			console.log(err);
 		} else {
-		    res.render("show", { campground: foundCampground });
+			if(foundCampground){
+			    res.render("campgrounds/show", { campground: foundCampground });
+			} else {
+				res.redirect("/campgrounds");
+			}
 		}
 	});
 });
 // COMMENTS ROUTES
-// ADD a Campground
+// ADD a comment
 app.get("/campgrounds/:id/comments/new", function(req, res){
-	res.render("comments/new")
+	Campground.findById(req.params.id, function(err, campground){
+		if(err){
+			console.log(err);
+		} else {
+			res.render("comments/new", {campground: campground})
+		}
+	})
+})
+// CREATE a comment
+app.post("/campgrounds/:id/comments/new", function(req, res){
+	Campground.findById(req.params.id, function(err, campground){
+		var campgroundPath = "/campgrounds/"+req.params.id;
+		if(err){
+			console.log(err);
+			res.redirect(campgroundPath);
+		} else {
+			Comment.create(req.body.comment, function(err, comment){
+				if(err){
+					res.redirect(campgroundPath);
+				} else {
+					campground.comments.push(comment);
+					campground.save();
+					res.redirect(campgroundPath);
+				}
+			})
+		}
+	})
 })
 
 // ====================
@@ -82,3 +112,10 @@ var port = process.env.PORT || 9000;
 app.listen(port, process.env.IP, function(){
 	console.log(`Yelp Camp server has started on port ${port}!`);
 });
+
+// Keep heroku app awake
+if(process.env.HEROKU == "yes"){
+	setInterval(function(){
+		http.get("http://paradox-yelp-camp.herokuapp.com")
+	}, 280000);
+}
