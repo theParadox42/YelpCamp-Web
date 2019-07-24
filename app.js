@@ -2,44 +2,27 @@
 if(process.env.HEROKU != "yes"){
 	require('dotenv').config();
 }
-
 // DEPENDENTS
 var express 		= require("express"),
 	app 			= express(),
 	bodyParser		= require("body-parser"),
-	mongoose		= require("mongoose");
+	mongoose		= require("mongoose"),
+	Campground    	= require("./models/campground"),
+	seedDB			= require("./seeds");
 
+seedDB();
 
 // SETUP
 
 // Mongoose
-mongoose.connect('mongodb+srv://' +
-	process.env.USERNAME + ':'
-	+ process.env.WEBDEVBOOTCAMPPASS + '@data-sodyq.mongodb.net/yelpcamp?retryWrites=true&w=majority', {
-    useNewUrlParser: true
-}).catch(function(e){
-    console.log("Error occured connecting to mongodb");
-	console.log(e);
-});
+var username = process.env.USERNAME;
+var password = process.env.WEBDEVBOOTCAMPPASS;
+mongoose.connect('mongodb+srv://'+username+':'+password+'@data-sodyq.mongodb.net/yelpcamp?retryWrites=true&w=majority', { useNewUrlParser: true });
 
 // EJS
 app.set("view engine", "ejs");
 // Body parser
 app.use(bodyParser.urlencoded({extended: true}));
-
-
-// MONGO
-
-//Schema
-var campgroundSchema = new mongoose.Schema({
-	name: String,
-	img: String,
-	description: String
-});
-var Campground = mongoose.model("Campground", campgroundSchema);
-
-
-
 
 // ROUTES
 app.get("/", function(req, res){
@@ -77,17 +60,24 @@ app.post("/campgrounds", function(req, res){
 });
 // SHOW show campground
 app.get("/campgrounds/:id", function(req, res) {
-	Campground.findById(req.params.id, function(err, foundCampground){
+	Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
 		if(err){
 			console.log("Error getting Campground");
 			console.log(err);
 		} else {
-		    res.render("show", {campground: foundCampground});
+		    res.render("show", { campground: foundCampground });
 		}
 	});
 });
+// COMMENTS ROUTES
+// ADD a Campground
+app.get("/campgrounds/:id/comments/new", function(req, res){
+	res.render("comments/new")
+})
 
+// ====================
 // RUN APP
+// ====================
 var port = process.env.PORT || 9000;
 app.listen(port, process.env.IP, function(){
 	console.log(`Yelp Camp server has started on port ${port}!`);
