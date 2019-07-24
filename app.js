@@ -1,3 +1,8 @@
+// Process stuff
+if(process.env.HEROKU != "yes"){
+	require('dotenv').config();
+}
+
 // DEPENDENTS
 var express 		= require("express"),
 	app 			= express(),
@@ -8,12 +13,15 @@ var express 		= require("express"),
 // SETUP
 
 // Mongoose
-mongoose.connect('mongodb://localhost:27017/yelp_camp', {
+mongoose.connect('mongodb+srv://' +
+	process.env.USERNAME + ':'
+	+ process.env.WEBDEVBOOTCAMPPASS + '@data-sodyq.mongodb.net/yelpcamp?retryWrites=true&w=majority', {
     useNewUrlParser: true
 }).catch(function(e){
     console.log("Error occured connecting to mongodb");
 	console.log(e);
 });
+
 // EJS
 app.set("view engine", "ejs");
 // Body parser
@@ -64,8 +72,8 @@ app.post("/campgrounds", function(req, res){
 	        res.redirect("/campgrounds");
 		}
 	});
-	
-	
+
+
 });
 // SHOW show campground
 app.get("/campgrounds/:id", function(req, res) {
@@ -80,6 +88,7 @@ app.get("/campgrounds/:id", function(req, res) {
 });
 
 // RUN APP
-app.listen(process.env.PORT || 9000, process.env.IP, function(){
-	console.log("Yelp Camp server has started!");
+var port = process.env.PORT || 9000;
+app.listen(port, process.env.IP, function(){
+	console.log(`Yelp Camp server has started on port ${port}!`);
 });
