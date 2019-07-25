@@ -7,11 +7,16 @@ var express 		= require("express"),
 	http 			= require("http"),
 	passport		= require("passport"),
 	localStrategy	= require("passport-local"),
-	expressSession	= require("express-session");
+	expressSession	= require("express-session"),
 	Campground    	= require("./models/campground"),
 	Comment 		= require("./models/comment"),
 	User 			= require("./models/user"),
+	indexRoutes		= require("./routes/index.js"),
+	authRoutes		= require("./routes/auth.js"),
+	campingRoutes	= require("./routes/campgrounds.js"),
+	commentRoutes	= require("./routes/comments.js"),
 	seedDB			= require("./seeds");
+
 // Enviroment variables
 if(process.env.HEROKU != "yes"){
 	require('dotenv').config();
@@ -26,96 +31,28 @@ mongoose.connect(require("./models/connection"), { useNewUrlParser: true });
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"))
-// Passport config
+// User Auth & passport config
 app.use(expressSession({
-	secret: process.env.PASSPORTSECRET || "123",
+	secret: process.env.PASSPORT_SECRET || "123",
 	resave: false,
 	saveUninitialized: false,
 }))
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new localStrategy(User.authenticate()));
-
-
-// ROUTES
-app.get("/", function(req, res){
-	res.render("landing");
-});
-// INDEX view campgrounds
-app.get("/campgrounds", function(req, res){
-	Campground.find({}, function(err, allCampgrounds){
-		if(err){
-			console.log(err);
-		} else {
-            res.render("campgrounds/index", {campgrounds: allCampgrounds});
-		}
-	});
-});
-// ADD add campground
-app.get("/campgrounds/new", function(req, res){
-	res.render("campgrounds/new");
-});
-// CREATE post to DB
-app.post("/campgrounds", function(req, res){
-	var newCampground = req.body;
-	console.log(newCampground)
-    Campground.create(newCampground, function(err, newCamp){
-		if(err){
-			console.log("error making campground");
-			console.log(err);
-			res.redirect("/campgrounds/new");
-		} else {
-	        res.redirect("/campgrounds");
-		}
-	});
-
-});
-// SHOW show campground
-app.get("/campgrounds/:id", function(req, res) {
-	Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
-		if(err){
-			console.log("Error getting Campground");
-			console.log(err);
-		} else {
-			if(foundCampground){
-			    res.render("campgrounds/show", { campground: foundCampground });
-			} else {
-				res.redirect("/campgrounds");
-			}
-		}
-	});
-});
-// COMMENTS ROUTES
-// ADD a comment
-app.get("/campgrounds/:id/comments/new", function(req, res){
-	Campground.findById(req.params.id, function(err, campground){
-		if(err){
-			console.log(err);
-		} else {
-			res.render("comments/new", {campground: campground})
-		}
-	})
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+app.use(function(req, res, next){
+	res.locals.user = req.user;
+	next();
 })
-// CREATE a comment
-app.post("/campgrounds/:id/comments/new", function(req, res){
-	Campground.findById(req.params.id, function(err, campground){
-		var campgroundPath = "/campgrounds/"+req.params.id;
-		if(err){
-			console.log(err);
-			res.redirect(campgroundPath);
-		} else {
-			Comment.create(req.body.comment, function(err, comment){
-				if(err){
-					res.redirect(campgroundPath);
-				} else {
-					campground.comments.push(comment);
-					campground.save();
-					res.redirect(campgroundPath);
-				}
-			})
-		}
-	})
-})
+
+// Routes
+app.use(indexRoutes);
+app.use(authRoutes);
+app.use("/campgrounds", campingRoutes);
+app.use("/campgrounds/:id/comments",commentRoutes);
+
 
 // ====================
 // RUN APP

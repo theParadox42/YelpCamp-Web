@@ -7,7 +7,7 @@
 			Add a comment to <%= campground.name %>
 		</h1>
 		<div style="width: 30%; margin: 0 auto;">
-			<form action="/campgrounds/<%= campground._id %>/comments/new" method="POST">
+			<form action="/campgrounds/<%= campground._id %>/comments" method="POST">
 				<div class="form-group">
 					<input class="form-control" type="text" name="comment[text]" placeholder="Comment"/>
 				</div>
