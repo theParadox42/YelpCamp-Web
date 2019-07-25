@@ -8,8 +8,12 @@ var express 		= require("express"),
 	bodyParser		= require("body-parser"),
 	mongoose		= require("mongoose"),
 	http 			= require("http"),
+	passport		= require("passport"),
+	localStrategy	= require("passport-local"),
+	expressSession	= require("express-session");
 	Campground    	= require("./models/campground"),
 	Comment 		= require("./models/comment"),
+	User 			= require("./models/user"),
 	seedDB			= require("./seeds");
 
 seedDB();
@@ -24,6 +28,16 @@ mongoose.connect('mongodb+srv://'+username+':'+password+'@data-sodyq.mongodb.net
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"))
+// Passport config
+app.use(expressSession({
+	secret: process.env.PASSPORTSECRET || "123",
+	resave: false,
+	saveUninitialized: false,
+}))
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+
 
 // ROUTES
 app.get("/", function(req, res){
