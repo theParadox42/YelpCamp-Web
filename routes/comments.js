@@ -32,20 +32,25 @@ router.post("/", loggedInOnly, function(req, res){
 		if(err){
 			console.log("Error finding campground", err);
 			res.redirect(campgroundPath);
-		} else {
+		} else if(campground){
 			Comment.create(req.body.comment, function(err, comment){
 				if(err){
                     console.log("Error making comment", err);
 					res.redirect(campgroundPath);
 				} else {
                     if(comment){
+                        comment.author.username = req.user.username;
+                        comment.author._id = req.user._id
+                        comment.save();
     					campground.comments.push(comment);
     					campground.save();
                     }
 					res.redirect(campgroundPath);
 				}
 			})
-		}
+		} else {
+            res.redirect(campgroundpath);
+        }
 	})
 })
 

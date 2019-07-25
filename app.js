@@ -1,6 +1,7 @@
 
 // DEPENDENTS
-var express 		= require("express"),
+var _				= require("dotenv").config(),
+	express 		= require("express"),
 	app 			= express(),
 	bodyParser		= require("body-parser"),
 	mongoose		= require("mongoose"),
@@ -16,12 +17,6 @@ var express 		= require("express"),
 	campingRoutes	= require("./routes/campgrounds.js"),
 	commentRoutes	= require("./routes/comments.js"),
 	seedDB			= require("./seeds");
-
-// Enviroment variables
-if(process.env.HEROKU != "yes"){
-	require('dotenv').config();
-	seedDB();
-}
 
 // SETUP
 

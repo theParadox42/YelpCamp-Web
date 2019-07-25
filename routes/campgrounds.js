@@ -3,6 +3,13 @@ var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
     Campground  = require("../models/campground");
 
+// Logged in only
+function loggedInOnly(req, res, next){
+	if(req.isAuthenticated()){
+		return next();
+	}
+	res.redirect("/login");
+}
 // CAMPGROUND ROUTES
 // INDEX view campgrounds
 router.get("/", function(req, res){
@@ -15,12 +22,17 @@ router.get("/", function(req, res){
 	});
 });
 // ADD add campground
-router.get("/new", function(req, res){
+router.get("/new", loggedInOnly, function(req, res){
 	res.render("campgrounds/new");
 });
 // CREATE post to DB
-router.post("/", function(req, res){
-	var newCampground = req.body;
+router.post("/", loggedInOnly, function(req, res){
+	var newCampground = req.body.campground;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    newCampground.author = author;
     Campground.create(newCampground, function(err, newCamp){
 		if(err){
 			console.log("error making campground");
