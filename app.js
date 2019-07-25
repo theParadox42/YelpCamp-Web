@@ -1,7 +1,4 @@
-// Process stuff
-if(process.env.HEROKU != "yes"){
-	require('dotenv').config();
-}
+
 // DEPENDENTS
 var express 		= require("express"),
 	app 			= express(),
@@ -15,15 +12,16 @@ var express 		= require("express"),
 	Comment 		= require("./models/comment"),
 	User 			= require("./models/user"),
 	seedDB			= require("./seeds");
-
-seedDB();
+// Enviroment variables
+if(process.env.HEROKU != "yes"){
+	require('dotenv').config();
+	seedDB();
+}
 
 // SETUP
 
 // Mongoose
-var username = process.env.USERNAME;
-var password = process.env.WEBDEVBOOTCAMPPASS;
-mongoose.connect('mongodb+srv://'+username+':'+password+'@data-sodyq.mongodb.net/yelpcamp?retryWrites=true&w=majority', { useNewUrlParser: true });
+mongoose.connect(require("./models/connection"), { useNewUrlParser: true });
 // File stuff
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
