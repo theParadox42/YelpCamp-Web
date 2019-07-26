@@ -6,6 +6,7 @@ var _				= require("dotenv").config(),
 	bodyParser		= require("body-parser"),
 	mongoose		= require("mongoose"),
 	http 			= require("http"),
+	methodOverride	= require("method-override"),
 	passport		= require("passport"),
 	localStrategy	= require("passport-local"),
 	expressSession	= require("express-session"),
@@ -41,6 +42,7 @@ app.use(function(req, res, next){
 	res.locals.user = req.user;
 	next();
 })
+app.use(methodOverride("_method"));
 
 // Routes
 app.use(indexRoutes);
