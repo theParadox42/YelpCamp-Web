@@ -41,7 +41,7 @@
                             <p>
                                  <%= comment.text %>
                             </p>
-                            <% if(user && user.admin) { %>
+                            <% if(user && (user.admin || comment.author.id.equals(user._id))) { %>
                             <a class="btn btn-xs btn-warning"
                                 href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
                             <form class="delete-form"

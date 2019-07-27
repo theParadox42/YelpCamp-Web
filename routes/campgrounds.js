@@ -24,7 +24,7 @@ function ownsCampgroundOnly(req, res, next){
             }
         });
     } else {
-        res.redirect("back")
+        res.redirect("back");
     }
 }
 
@@ -49,7 +49,7 @@ router.post("/", loggedInOnly, function(req, res) {
     var author = {
         id: req.user._id,
         username: req.user.username
-    }
+    };
     newCampground.author = author;
     Campground.create(newCampground, function(err, newCamp){
 		if(err){
@@ -68,7 +68,7 @@ router.get("/:id", function(req, res) {
 		if(err){
 			console.log("Error getting Campground");
 			console.log(err);
-            res.redirect("/campgrounds")
+            res.redirect("/campgrounds");
 		} else {
 			if(foundCampground){
 			    res.render("campgrounds/show", { campground: foundCampground });
@@ -89,9 +89,9 @@ router.get("/:id/edit", ownsCampgroundOnly, function(req, res){
             }
         });
     } else {
-        res.redirect("/campgrounds/"+req.params.id)
+        res.redirect("/campgrounds/"+req.params.id);
     }
-})
+});
 // UPDATE campground
 router.put("/:id", ownsCampgroundOnly, function(req, res){
     Campground.findById(req.params.id, function(err, foundCampground){
@@ -104,9 +104,9 @@ router.put("/:id", ownsCampgroundOnly, function(req, res){
                 } else {
                     res.redirect("/campgrounds/" + req.params.id);
                 }
-            })
+            });
         }
-    })
+    });
     // Campground.findOneAndUpdate({ _id: req.params.id }, { $set: req.body.campground }, function(err, updatedCampground){
     //     if(err){
     //         res.redirect("/campgrounds");
@@ -114,7 +114,7 @@ router.put("/:id", ownsCampgroundOnly, function(req, res){
     //         res.redirect("/campgrounds/" + updatedCampground._id)
     //     }
     // })
-})
+});
 // DELETE campground
 router.delete("/:id", ownsCampgroundOnly, function(req, res){
 
@@ -124,11 +124,11 @@ router.delete("/:id", ownsCampgroundOnly, function(req, res){
         } else {
             Campground.deleteOne({ _id: req.params.id }, function(err){
                 if(err){
-                    res.redirect("/campgrounds/"+req.params.id)
+                    res.redirect("/campgrounds/" + req.params.id);
                 } else {
                     res.redirect("/campgrounds");
                 }
-            })
+            });
         }
     });
 });

@@ -25,7 +25,7 @@ function ownsCommentOnly(req, res, next){
             }
         });
     } else {
-        res.redirect("back")
+        res.redirect("back");
     }
 }
 
@@ -38,11 +38,11 @@ router.get("/new", loggedInOnly, function(req, res){
             return res.redirect("/campgrounds/" + req.params.id);
         }
         if(campground){
-			return res.render("comments/new", { campground: campground })
+			return res.render("comments/new", { campground: campground });
         }
         res.redirect("/campgrounds/" + req.params.id);
-	})
-})
+	});
+});
 // CREATE a comment
 router.post("/", loggedInOnly, function(req, res){
 	Campground.findById(req.params.id, function(err, campground){
@@ -58,29 +58,29 @@ router.post("/", loggedInOnly, function(req, res){
 				} else {
                     if(comment){
                         comment.author.username = req.user.username;
-                        comment.author._id = req.user._id
+                        comment.author.id = req.user._id;
                         comment.save();
     					campground.comments.push(comment);
     					campground.save();
                     }
 					res.redirect(campgroundPath);
 				}
-			})
+			});
 		} else {
             res.redirect(campgroundpath);
         }
-	})
-})
+	});
+});
 // EDIT a comment
 router.get("/:commentid/edit", ownsCommentOnly, function(req, res){
     Comment.findById(req.params.commentid, function(err, foundComment){
         if(err){
             res.redirect("back");
         } else {
-            res.render("comments/edit", {campgroundId: req.params.id, comment: foundComment})
+            res.render("comments/edit", {campgroundId: req.params.id, comment: foundComment});
         }
-    })
-})
+    });
+});
 // UPDATE a comment
 router.put("/:commentid", ownsCommentOnly, function(req, res){
     Comment.updateOne({ _id: req.params.commentid }, { $set: req.body.comment }, function(err, comment){
@@ -97,9 +97,9 @@ router.delete("/:commentid", ownsCommentOnly, function(req, res){
         if(err){
             res.redirect("back");
         } else {
-            res.redirect("/campgrounds/" + req.params.id)
+            res.redirect("/campgrounds/" + req.params.id);
         }
-    })
-})
+    });
+});
 
 module.exports = router;
