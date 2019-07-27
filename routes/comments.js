@@ -10,12 +10,13 @@ var express     = require("express"),
 router.get("/new", middleware.loggedInOnly, function(req, res){
 	Campground.findById(req.params.id, function(err, campground){
 		if(err){
-			console.log("Error finding campground", err);
+            req.flash("error", "Error finding campground")
             return res.redirect("/campgrounds/" + req.params.id);
         }
         if(campground){
 			return res.render("comments/new", { campground: campground });
         }
+        req.flash("error", "Campground not found");
         res.redirect("/campgrounds/" + req.params.id);
 	});
 });
@@ -24,12 +25,12 @@ router.post("/", middleware.loggedInOnly, function(req, res){
 	Campground.findById(req.params.id, function(err, campground){
 		var campgroundPath = "/campgrounds/"+req.params.id;
 		if(err){
-			console.log("Error finding campground", err);
+            req.flash("error", "Error finding campground");
 			res.redirect(campgroundPath);
 		} else if(campground){
 			Comment.create(req.body.comment, function(err, comment){
 				if(err){
-                    console.log("Error making comment", err);
+                    req.flash("error", "Error creating comment");
 					res.redirect(campgroundPath);
 				} else {
                     if(comment){
@@ -43,6 +44,7 @@ router.post("/", middleware.loggedInOnly, function(req, res){
 				}
 			});
 		} else {
+            req.flash("error", "Campground not found");
             res.redirect(campgroundpath);
         }
 	});
@@ -51,6 +53,7 @@ router.post("/", middleware.loggedInOnly, function(req, res){
 router.get("/:commentid/edit", middleware.ownsCommentOnly, function(req, res){
     Comment.findById(req.params.commentid, function(err, foundComment){
         if(err){
+            req.flash("error", "Error finding comment");
             res.redirect("back");
         } else {
             res.render("comments/edit", {campgroundId: req.params.id, comment: foundComment});
@@ -61,6 +64,7 @@ router.get("/:commentid/edit", middleware.ownsCommentOnly, function(req, res){
 router.put("/:commentid", middleware.ownsCommentOnly, function(req, res){
     Comment.updateOne({ _id: req.params.commentid }, { $set: req.body.comment }, function(err, comment){
         if(err){
+            req.flash("error", "Error updating comment")
             res.redirect("back");
         } else {
             res.redirect("/campgrounds/" + req.params.id);
@@ -71,6 +75,7 @@ router.put("/:commentid", middleware.ownsCommentOnly, function(req, res){
 router.delete("/:commentid", middleware.ownsCommentOnly, function(req, res){
     Comment.deleteOne({ _id: req.params.commentid }, function(err){
         if(err){
+            req.flash("error", "Error deleting comment!");
             res.redirect("back");
         } else {
             res.redirect("/campgrounds/" + req.params.id);
