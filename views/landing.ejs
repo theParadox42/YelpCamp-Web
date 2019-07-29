@@ -1,13 +1,40 @@
-<% include partials/header %>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>YelpCamp</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/stylesheets/landing.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript" async></script>
+    </head>
+    <body>
+		
+		<% include partials/navbar.ejs %>
 
-<h1>
-	Landing Page
-</h1>
-<p>
-	Welcome to Yelp Camp
-</p>
-<a href="/campgrounds">
-	View all Campgrounds
-</a>
+	    <div class="container">
+	        <% if(errorFlashMessage && errorFlashMessage.length > 0){ %>
+	            <div class="alert alert-danger" role="alert">
+	                <%= errorFlashMessage %>
+	            </div>
+	        <% } %>
+	        <% if(successFlashMessage && successFlashMessage.length > 0){ %>
+	            <div class="alert alert-success" role="alert">
+	                <%= successFlashMessage %>
+	            </div>
+	        <% } %>
+	    </div>
+
+	    <div id="landing-header">
+	 		<h1>Welcome to YelpCamp!</h1>
+			<a href="/campgrounds" class="btn btn-lg btn-success">View All Campgrounds</a>
+	    </div>
+
+	    <ul class="slideshow">
+	      <li></li>
+	      <li></li>
+	      <li></li>
+	      <li></li>
+	      <li></li>
+	    </ul>
+
 
 <% include partials/footer %>
