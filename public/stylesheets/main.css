@@ -11,3 +11,7 @@
 .delete-form {
     display: inline;
 }
+.campground-flex {
+    display: flex;
+    flex-wrap: wrap;
+}

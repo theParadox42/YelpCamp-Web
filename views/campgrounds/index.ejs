@@ -17,11 +17,11 @@
 		</div>
 	</div>
 
-	<div class="row text-center" style="display:flex; flex-wrap:wrap;">
+	<div class="row text-center campground-flex">
 		<% campgrounds.forEach(function(campground){ %>
 		<div class="col-sm-6 col-md-3">
 			<div class="thumbnail">
-				<img alt="Image error" src="<%= campground.img %>">
+				<img alt="Image not available" src="<%= campground.img %>">
 				<div class="caption">
 					<h4><%= campground.name %></h4>
 				</div>

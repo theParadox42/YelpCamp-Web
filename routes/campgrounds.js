@@ -2,6 +2,7 @@
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
     Campground  = require("../models/campground"),
+    User        = require("../models/user"),
     middleware  = require("../middleware");
 
 
@@ -28,16 +29,24 @@ router.post("/", middleware.loggedInOnly, function(req, res) {
         username: req.user.username
     };
     newCampground.author = author;
-    Campground.create(newCampground, function(err, newCamp){
-		if(err){
-            req.flash("error", "Erro making campground")
-			res.redirect("/campgrounds/new");
-		} else {
-            req.flash("success", "Campground: " + newCamp.name + " created!")
-	        res.redirect("/campgrounds");
-		}
-	});
-
+    User.findById(req.user._id, function(userErr, foundUser){
+        Campground.create(newCampground, function(campgroundErr, newCamp){
+    		if(campgroundErr){
+                req.flash("error", "Error making campground")
+    			res.redirect("/campgrounds/new");
+    		} else {
+                req.flash("success", "Campground: " + newCamp.name + " created!")
+                if(!userErr && foundUser){
+                    foundUser.campgrounds.push(newCamp._id);
+                    foundUser.save();
+                    console.log(foundUser);
+                } else {
+                    req.flash("error", "Error with user");
+                }
+    	        res.redirect("/campgrounds");
+    		}
+    	});
+    })
 });
 // SHOW campground
 router.get("/:id", function(req, res) {

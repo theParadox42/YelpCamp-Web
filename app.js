@@ -15,7 +15,7 @@ var _				= require("dotenv").config(),
 	Comment 		= require("./models/comment"),
 	User 			= require("./models/user"),
 	indexRoutes		= require("./routes/index.js"),
-	authRoutes		= require("./routes/auth.js"),
+	userRoutes		= require("./routes/user.js"),
 	campingRoutes	= require("./routes/campgrounds.js"),
 	commentRoutes	= require("./routes/comments.js"),
 	seedDB			= require("./seeds");
@@ -50,10 +50,10 @@ app.use(function(req, res, next){
 })
 
 // Routes
-app.use(indexRoutes);
-app.use(authRoutes);
+app.use(userRoutes);
 app.use("/campgrounds", campingRoutes);
 app.use("/campgrounds/:id/comments",commentRoutes);
+app.use(indexRoutes);
 
 
 // ====================

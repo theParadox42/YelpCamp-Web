@@ -1,0 +1,55 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <h1 class="text-center"><%= profile.username %>'s Profile!</h1>
+    <hr>
+    <!-- Campgrounds -->
+    <div>
+        <h3><%= profile.username %>'s Campgrounds</h3>
+        <% if(profile.campgrounds.length <= 0){ %>
+        <% if(user && profile._id == user.id ) { %>
+        <div style="display:block;">
+            <p>You don't have any campgrounds!</p>
+        </div>
+        <div class="text-center">
+            <p class="text-center">
+                <a class="btn btn-info" href="/campgrounds/new">Create a campground</a>
+            </p>
+        </div>
+        <% } else { %>
+        <p><%= profile.username %> doesn't have any campgrounds!</p>
+        <% } %>
+        <% } else { %>
+        <div class="row text-center campground-flex">
+            <% profile.campgrounds.forEach(function(campground){ %>
+    		<div class="col-sm-6 col-md-3">
+    			<div class="thumbnail">
+    				<img alt="Image not available" src="<%= campground.img %>">
+    				<div class="caption">
+    					<h4><a href="/campgrounds/<%= campground._id %>"><%= campground.name %></a></h4>
+    				</div>
+    			</div>
+    		</div>
+            <% }); %>
+        </div>
+        <% } %>
+    </div>
+    <hr>
+
+    <!-- Comments -->
+    <h3><%= profile.username %>'s' Comments</h3>
+    <ul>
+        <% profile.comments.forEach(function(comment){ %>
+        <li>
+            <strong>
+                <%= profile.username %> said "<%= comment.text %>"
+            </strong>
+            <ul>
+                <li>At <a href="/campgrounds/<%= comment.campground.id %>"><%= comment.campground.name %></a> campground</li>
+            </ul>
+        </li>
+        <% }); %>
+    </ul>
+</div>
+
+<% include ../partials/footer %>

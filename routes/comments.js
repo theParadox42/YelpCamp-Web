@@ -1,6 +1,7 @@
 
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
+    User        = require("../models/user"),
     Comment     = require("../models/comment"),
     Campground  = require("../models/campground"),
     middleware  = require("../middleware");
@@ -36,9 +37,20 @@ router.post("/", middleware.loggedInOnly, function(req, res){
                     if(comment){
                         comment.author.username = req.user.username;
                         comment.author.id = req.user._id;
+                        comment.campground.name = campground.name;
+                        comment.campground.id = campground._id;
                         comment.save();
     					campground.comments.push(comment);
     					campground.save();
+                        User.findById(req.user._id, function(err, user){
+                            if(err){
+                                res.flash("error", "User not found. Shouldn't happen");
+                                res.redirect("back");
+                            } else {
+                                user.comments.push(comment._id);
+                                user.save();
+                            }
+                        });
                     }
 					res.redirect(campgroundPath);
 				}
@@ -56,7 +68,7 @@ router.get("/:commentid/edit", middleware.ownsCommentOnly, function(req, res){
             req.flash("error", "Error finding comment");
             res.redirect("back");
         } else {
-            res.render("comments/edit", {campgroundId: req.params.id, comment: foundComment});
+            res.render("comments/edit", { campgroundId: req.params.id, comment: foundComment });
         }
     });
 });
@@ -66,8 +78,11 @@ router.put("/:commentid", middleware.ownsCommentOnly, function(req, res){
         if(err){
             req.flash("error", "Error updating comment")
             res.redirect("back");
-        } else {
+        } else if(comment) {
             res.redirect("/campgrounds/" + req.params.id);
+        } else {
+            req.flash("error", "No comment found to update");
+            res.redirect("back");
         }
     });
 });
