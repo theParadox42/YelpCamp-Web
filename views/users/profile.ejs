@@ -8,11 +8,11 @@
         <h3><%= profile.username %>'s Campgrounds</h3>
         <% if(profile.campgrounds.length <= 0){ %>
         <% if(user && profile._id == user.id ) { %>
-        <div style="display:block;">
+        <div>
             <p>You don't have any campgrounds!</p>
         </div>
-        <div class="text-center">
-            <p class="text-center">
+        <div>
+            <p>
                 <a class="btn btn-info" href="/campgrounds/new">Create a campground</a>
             </p>
         </div>
