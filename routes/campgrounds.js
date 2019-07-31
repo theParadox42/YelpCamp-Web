@@ -1,7 +1,7 @@
 
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
-    http        = require("http"),
+    mongoose    = require("mongoose"),
     Campground  = require("../models/campground"),
     User        = require("../models/user"),
     middleware  = require("../middleware");
@@ -98,7 +98,7 @@ router.put("/:id", middleware.ownsCampgroundOnly, function(req, res){
 router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err || !foundCampground){
-            req.flash("error", "Error finding campground to delete");
+            req.flash("error", err?"Error finding campground to delete":"No campground found for deletion");
             res.redirect("/campgrounds/" + req.params.id);
         } else {
             Campground.deleteOne({ _id: foundCampground._id }, function(err){
@@ -116,10 +116,22 @@ router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
                         } else {
                             req.flash("error", "No user associated with campground");
                         }
-                        for(var i = 0; i < foundCampground.comments.length; i ++){
-                            http.request(req.protocol + "://" + req.get("host") + "/campgrounds/" + foundCampground._id + "/comments/" + foundCampground.comments[i]);
+                        if(foundCampground.comments.length > 0){
+                            Comment.findById(foundCampground.comments[0], function(err, foundComment){
+                                if(err || !foundComment){
+                                    req.flash("error", "Error finding comments associated with comment");
+                                    res.redirect("/campgrounds");
+                                } else {
+                                    var campgroundInfo = foundComment.campground;
+                                    Comment.deleteMany({ campground: campgroundInfo }, function(err){
+                                        if(err){
+                                            req.flash("error", "Error deleting associated comments")
+                                        }
+                                        res.redirect("/campgrounds");
+                                    });
+                                }
+                            });
                         }
-                        res.redirect("/campgrounds");
                     });
                 }
             });

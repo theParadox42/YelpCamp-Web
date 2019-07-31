@@ -64,9 +64,12 @@ app.listen(port, process.env.IP, function(){
 	console.log(`Yelp Camp server has started on port ${port}!`);
 });
 
+// This was using too many dyno hours.
+/*
 // Keep heroku app awake
 if(process.env.HEROKU == "yes"){
 	setInterval(function(){
 		http.get("http://paradox-yelp-camp.herokuapp.com")
 	}, 280000);
 }
+*/

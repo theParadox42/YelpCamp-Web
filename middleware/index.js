@@ -4,6 +4,13 @@ var Campground  = require("../models/campground"),
     Comment     = require("../models/comment");
 
 module.exports = {
+    https: function (req, res, next) {
+        // The 'x-forwarded-proto' check is for Heroku
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
+        next();
+    },
     loggedInOnly: function(req, res, next){
         if(req.isAuthenticated()){
             return next();
