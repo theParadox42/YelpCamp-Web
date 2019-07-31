@@ -1,11 +1,14 @@
 
 var express     = require("express"),
     router      = express.Router(),
+    passport    = require("passport"),
+    http        = require("http"),
     Campground  = require("../models/campground"),
     User        = require("../models/user"),
-    passport    = require("passport");
+    middleware  = require("../middleware");
 
 // AUTH ROUTES
+// Redirect to your account
 router.get("/profile", function(req, res){
     if(req.user){
         res.redirect("/profile/" + req.user.username);
@@ -72,6 +75,37 @@ router.get("/logout", function(req, res){
 	req.logout();
     req.flash("success", "Logged you out!");
 	res.redirect("/campgrounds");
+})
+// DELETE a user
+router.get("/user/delete", middleware.loggedInOnly, function(req, res){
+    res.render("users/delete");
+})
+// DESTROY a user
+router.delete("/user/delete", middleware.loggedInOnly, function(req, res){
+    User.findById(req.user._id).populate("campgrounds comments").exec(function(err, foundUser){
+        if(err){
+            req.flash("error", "Error finding user to delete");
+            res.redirect("/profile");
+        } else {
+            User.deleteOne({ _id: req.user._id }, function(err){
+                if(err){
+                    req.flash("error", "Error deleting user");
+                    res.redirect("/profile");
+                } else {
+                    console.log(req.get("host"));
+                    for(var i = 0; i < foundUser.comments.length; i ++){
+                        var comment = foundUser.comments[i];
+                        http.request(req.protocol + "://" + req.get("host") + "/campgrounds/" + comment.campground.id + "/comments/" + comment._id, { method: "DELETE" });
+                    }
+                    for(var i = 0; i < foundUser.campgrounds.length; i ++){
+                        var campground = foundUser.campgrounds[i];
+                        http.request(req.protocol + "://" + req.get("host") + "/campgrounds/" + campground._id, { method: "DELETE" });
+                    }
+                    res.redirect("/logout");
+                }
+            })
+        }
+    })
 })
 
 module.exports = router;

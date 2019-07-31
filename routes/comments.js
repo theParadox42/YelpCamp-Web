@@ -1,4 +1,3 @@
-
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
     User        = require("../models/user"),
@@ -88,12 +87,30 @@ router.put("/:commentid", middleware.ownsCommentOnly, function(req, res){
 });
 // DELETE a comment
 router.delete("/:commentid", middleware.ownsCommentOnly, function(req, res){
-    Comment.deleteOne({ _id: req.params.commentid }, function(err){
+    Comment.findById(req.params.commentid, function(err, foundComment){
         if(err){
-            req.flash("error", "Error deleting comment!");
+            req.flash("error", "No comment found to delete");
             res.redirect("back");
         } else {
-            res.redirect("/campgrounds/" + req.params.id);
+            Comment.deleteOne({ _id: req.params.commentid }, function(err){
+                if(err){
+                    req.flash("error", "Error deleting comment!");
+                    res.redirect("back");
+                } else {
+                    User.findById(foundComment.author.id, function(err, foundUser){
+                        if(err || !foundUser){
+                            req.flash("error", "No User associated with comment");
+                        } else {
+                            var commentIndex = foundUser.comments.findIndex(function(c){
+                                return c.equals(foundComment._id);
+                            })
+                            foundUser.comments.splice(commentIndex, 1);
+                            foundUser.save();
+                        }
+                        res.redirect("/campgrounds/" + req.params.id);
+                    })
+                }
+            });
         }
     });
 });

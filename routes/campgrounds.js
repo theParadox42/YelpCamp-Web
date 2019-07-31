@@ -1,6 +1,7 @@
 
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
+    http        = require("http"),
     Campground  = require("../models/campground"),
     User        = require("../models/user"),
     middleware  = require("../middleware");
@@ -95,17 +96,31 @@ router.put("/:id", middleware.ownsCampgroundOnly, function(req, res){
 });
 // DELETE campground
 router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
-    Campground.findById(req.params.id, function(err, foundCampground){
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err || !foundCampground){
             req.flash("error", "Error finding campground to delete");
             res.redirect("/campgrounds/" + req.params.id);
         } else {
-            Campground.deleteOne({ _id: req.params.id }, function(err){
+            Campground.deleteOne({ _id: foundCampground._id }, function(err){
                 if(err){
                     req.flash("error", "Error deleting campground");
                     res.redirect("/campgrounds/" + req.params.id);
                 } else {
-                    res.redirect("/campgrounds");
+                    User.findById(foundCampground.author.id, function(err, foundUser){
+                        if(!err && foundUser){
+                            var campgroundIndex = foundUser.campgrounds.findIndex(function(c){
+                                return c.equals(foundCampground._id);
+                            })
+                            foundUser.campgrounds.splice(campgroundIndex, 1);
+                            foundUser.save();
+                        } else {
+                            req.flash("error", "No user associated with campground");
+                        }
+                        for(var i = 0; i < foundCampground.comments.length; i ++){
+                            http.request(req.protocol + "://" + req.get("host") + "/campgrounds/" + foundCampground._id + "/comments/" + foundCampground.comments[i]);
+                        }
+                        res.redirect("/campgrounds");
+                    });
                 }
             });
         }

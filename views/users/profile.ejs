@@ -37,19 +37,46 @@
     <hr>
 
     <!-- Comments -->
-    <h3><%= profile.username %>'s' Comments</h3>
-    <ul>
-        <% profile.comments.forEach(function(comment){ %>
-        <li>
-            <strong>
-                <%= profile.username %> said "<%= comment.text %>"
-            </strong>
-            <ul>
-                <li>At <a href="/campgrounds/<%= comment.campground.id %>"><%= comment.campground.name %></a> campground</li>
-            </ul>
-        </li>
-        <% }); %>
-    </ul>
+    <div>
+        <h3><%= profile.username %>'s Comments</h3>
+        <% if(profile.comments.length <= 0){ %>
+        <% if(user && profile._id == user.id ) { %>
+        <div>
+            <p>You haven't posted any comments!</p>
+        </div>
+        <% } else { %>
+        <p><%= profile.username %> hasn't posted any comments</p>
+        <% } %>
+        <% } else { %>
+        <ul>
+            <% profile.comments.forEach(function(comment){ %>
+            <li>
+                <strong>
+                    <%= profile.username %> said "<%= comment.text %>"
+                </strong>
+                <ul>
+                    <li>At <a href="/campgrounds/<%= comment.campground.id %>"><%= comment.campground.name %></a> campground</li>
+                </ul>
+            </li>
+            <% }); %>
+        </ul>
+        <% } %>
+    </div>
+    <hr>
+
+    <!-- Other -->
+    <% if(user && profile._id == user.id){ %>
+    <div>
+        <div>
+            <a class="btn btn-warning" href="/logout">Logout</a>
+        </div>
+        <hr>
+        <div>
+            <a class="btn btn-danger" href="/user/delete">Delete Account</a>
+        </div>
+    </div>
+    <% } %>
+
 </div>
 
 <% include ../partials/footer %>

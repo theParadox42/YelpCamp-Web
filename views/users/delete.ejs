@@ -1,0 +1,11 @@
+<% include ../partials/header %>
+
+
+<div class="container text-center">
+    <h1>Delete User</h1>
+    <form action="/user/delete?_method=DELETE" method="POST">
+        <button class="btn btn-xl btn-danger">DELETE <%= user.username %></button>
+    </form>
+</div>
+
+<% include ../partials/footer %>
