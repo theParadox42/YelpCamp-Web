@@ -89,22 +89,27 @@ router.get("/logout", function(req, res){
 	res.redirect("/campgrounds");
 })
 // DELETE a user
-router.get("/user/delete", middleware.loggedInOnly, function(req, res){
+router.get("/user/delete", middleware.isntAdmin, function(req, res){
     res.render("users/delete");
 })
+router.get("/user/delete/:uid", middleware.isAdmin, function(req, res){
+    User.findById(req.params.uid, function(err, foundUser){
+        res.render("users/admindelete", { deleteUser: foundUser });
+    })
+})
 // DESTROY a user
-router.delete("/user/delete", middleware.loggedInOnly, function(req, res){
-    User.findById(req.user._id).populate("campgrounds comments").exec(function(err, foundUser){
+function deleteUser(uid, req, res){
+    User.findById(uid).populate("campgrounds comments").exec(function(err, foundUser){
         if(err || !foundUser){
             req.flash("error", err?"Error finding user to delete":"No user found to delete");
             res.redirect("/profile");
         } else {
-            User.deleteOne({ _id: req.user._id }, function(err){
+            User.deleteOne({ _id: uid }, function(err){
                 if(err){
                     req.flash("error", "Error deleting user");
                     res.redirect("/profile");
                 } else {
-                    var authorId = new ObjectId(req.user._id);
+                    var authorId = new ObjectId(uid);
                     Comment.deleteMany({ "author.id": authorId }, function(err){
                         if(err){
                             req.flash("error", "Error deleting associated comments");
@@ -112,14 +117,24 @@ router.delete("/user/delete", middleware.loggedInOnly, function(req, res){
                         Campground.deleteMany({ "author.id": authorId }, function(err){
                             if(err){
                                 req.flash("error", "Error deleting associated campgrounds");
+                            } else {
+                                req.flash("success", "Deleted user and their associated campgrounds and comments");
                             }
-                            res.redirect("/logout");
+                            req.logout();
+                            res.redirect("/");
                         })
                     })
                 }
             })
         }
-    })
+    });
+};
+router.delete("/user/delete", middleware.isntAdmin, function(req, res){
+    deleteUser(req.user._id, req, res);
+})
+router.delete("/user/delete/:uid", middleware.isAdmin, function(req, res){
+    deleteUser(req.params.uid, req, res);
 })
 
+// Send the router info
 module.exports = router;

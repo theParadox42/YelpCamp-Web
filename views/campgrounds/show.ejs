@@ -18,7 +18,7 @@
                     <h4><a href="#"><%= campground.name %></a></h4>
                     <p><%= campground.description %></p>
                     <p>
-                        <em>Submitted by <strong><%= campground.author.username %></strong></em>
+                        <em>Submitted by <strong><a href="/profile/<%= campground.author.username %>"><%= campground.author.username %></a></strong></em>
                     </p>
                     <% if(user && (campground.author.id.equals(user._id) || user.admin)) { %>
                     <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit campground: <%= campground.name %></a>

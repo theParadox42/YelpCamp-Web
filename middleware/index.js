@@ -18,6 +18,30 @@ module.exports = {
         req.flash("error", "You need to be logged in to do that!")
         res.redirect("/login");
     },
+    isAdmin: function(req, res, next){
+        if(req.user && req.user.admin){
+            return next();
+        } else if(req.user) {
+            req.flash("error", "You need to be an admin to do that!");
+            res.redirect("back");
+        } else {
+            req.flash("error", "You need to login as Admin to do that!");
+            res.redirect("/login");
+        }
+    },
+    isntAdmin: function(req, res, next){
+        if(req.user) {
+            if(req.user.admin){
+                req.flash("error", "The Admin can't do that!");
+                res.redirect("back");
+            } else {
+                next();
+            }
+        } else {
+            req.flash("error", "You need to login to do that!");
+            res.redirect("/login");
+        }
+    },
     ownsCampgroundOnly: function(req, res, next){
         if(req.isAuthenticated()){
             Campground.findById(req.params.id, function(err, foundCampground){

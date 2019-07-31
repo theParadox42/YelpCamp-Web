@@ -6,8 +6,8 @@
     <hr>
     <h3 class="text-danger">This will delete all of the users info, including campgrounds and comments!</h3>
     <hr>
-    <form action="/user/delete?_method=DELETE" method="POST">
-        <button class="btn btn-xl btn-danger">DELETE <%= user.username %></button>
+    <form action="/user/delete/<%= deleteUser._id %>?_method=DELETE" method="POST">
+        <button class="btn btn-xl btn-danger">Delete <%= deleteUser.username %></button>
     </form>
 </div>
 

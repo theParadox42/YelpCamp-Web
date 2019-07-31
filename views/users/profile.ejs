@@ -71,8 +71,16 @@
             <a class="btn btn-warning" href="/logout">Logout</a>
         </div>
         <hr>
+        <% if(!user.admin){ %>
         <div>
             <a class="btn btn-danger" href="/user/delete">Delete Account</a>
+        </div>
+        <% } %>
+    </div>
+    <% } else if(user && user.admin){ %>
+    <div>
+        <div>
+            <a class="btn btn-danger" href="/user/delete/<%= profile._id %>">Delete Account</a>
         </div>
     </div>
     <% } %>
