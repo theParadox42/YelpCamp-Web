@@ -5,19 +5,24 @@
 
 	<header class="jumbotron">
 		<h1>YelpCamps</h1>
-		<p>View our handpicked campgrounds from around the world!</p>
+		<p>Search our handpicked campgrounds from around the world!</p>
 		<p>
-			<a class="btn btn-primary btn-lg" href="/campgrounds/new">Make a new campground!</a>
+			<a class="btn btn-primary btn-lg" href="/campgrounds/new">Can't find it? Make it!</a>
 		</p>
 	</header>
 
 	<div class="row">
 		<div class="col-12">
-			<h3>Our most popular campgrounds</h3>
+            <% if(campgrounds.length > 0) { %>
+			<h3>Search results for "<%= query %>"</h3>
+            <% } else { %>
+            <h3>No search results for "<%= query %>"</h3>
+            <% } %>
 		</div>
 	</div>
 
 	<div class="row text-center campground-flex">
+        <% if(campgrounds.length > 0) { %>
 		<% campgrounds.forEach(function(campground){ %>
 		<div class="col-sm-6 col-md-3">
 			<div class="thumbnail">
@@ -31,6 +36,7 @@
 			</div>
 		</div>
 		<% }); %>
+        <% } %>
 	</div>
 	<a href="/">Home</a>
 

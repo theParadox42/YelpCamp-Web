@@ -6,7 +6,6 @@ var express     = require("express"),
     User        = require("../models/user"),
     middleware  = require("../middleware");
 
-
 // CAMPGROUND ROUTES
 // INDEX view campgrounds
 router.get("/", function(req, res){
@@ -40,7 +39,6 @@ router.post("/", middleware.loggedInOnly, function(req, res) {
                 if(!userErr && foundUser){
                     foundUser.campgrounds.push(newCamp._id);
                     foundUser.save();
-                    console.log(foundUser);
                 } else {
                     req.flash("error", "Error with user");
                 }
@@ -49,6 +47,22 @@ router.post("/", middleware.loggedInOnly, function(req, res) {
     	});
     })
 });
+// Search campgrounds
+router.get("/search", function(req, res) {
+    if (typeof req.query.q != "string") {
+        console.log(req.query.q);
+        req.body.q = ""
+    }
+    Campground.find({ $text: { $search: req.query.q } }, function(err, foundCampgrounds) {
+        if (err) {
+            console.log(err);
+            req.flash("error", "Couldn't perfom search")
+            res.redirect("/campgrounds");
+        } else {
+            res.render("campgrounds/search", { campgrounds: foundCampgrounds, query: req.query.q })
+        }
+    })
+})
 // SHOW campground
 router.get("/:id", function(req, res) {
 	Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
@@ -138,7 +152,6 @@ router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
         }
     });
 });
-
 
 
 module.exports = router;

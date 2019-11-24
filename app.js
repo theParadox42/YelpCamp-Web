@@ -23,7 +23,7 @@ var _				= require("dotenv").config(),
 // SETUP
 
 // Mongoose
-mongoose.connect(require("./models/connection"), { useNewUrlParser: true });
+mongoose.connect(require("./models/connection"), { useNewUrlParser: true, useUnifiedTopology: true });
 // File stuff
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
