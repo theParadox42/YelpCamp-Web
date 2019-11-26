@@ -11,7 +11,8 @@ var express     = require("express"),
 router.get("/", function(req, res){
 	Campground.find({}, function(err, allCampgrounds){
 		if(err){
-			console.log(err);
+            req.flash("error", "Error getting campgrounds")
+            res.redirect("/error")
 		} else {
             res.render("campgrounds/index", { campgrounds: allCampgrounds });
 		}

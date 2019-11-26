@@ -20,6 +20,6 @@ var campgroundSchema = new mongoose.Schema({
 		}
 	]
 });
-campgroundSchema.index({ name: "text", description: "text" });
+campgroundSchema.index({ name: "text", description: "text"});
 
 module.exports = mongoose.model("Campground", campgroundSchema);
