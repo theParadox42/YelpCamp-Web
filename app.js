@@ -25,6 +25,8 @@ var _				= require("dotenv").config(),
 
 // Mongoose
 mongoose.connect(require("./models/connection"), { useNewUrlParser: true, useUnifiedTopology: true });
+// Moment Package
+app.locals.moment = require('moment');
 // File stuff
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,7 +43,7 @@ app.use(passport.session());
 passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-// Misc stuff
+// Flash setup and locals
 app.use(flash());
 app.use(function(req, res, next){
 	res.locals.user = req.user;
