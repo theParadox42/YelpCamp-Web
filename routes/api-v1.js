@@ -1,4 +1,11 @@
 
+/*
+
+    YelpCamp API v1.0
+
+*/
+
+// Dependents
 var express     = require("express"),
     router      = express.Router({ mergeParams: true }),
     mongoose    = require("mongoose"),
@@ -12,9 +19,9 @@ var express     = require("express"),
 //My first version of a YelpCamp API
 router.get("/", function(req, res){
     sendJSON(res, { message: "YelpCamp API here!" }, "message")
-})
+});
 
-// USER Auth
+// USER
 router.post("/register", function(req, res){
     if(req.body.admincode == process.env.ADMIN_CODE) {
         if(req.body.password) {
@@ -55,7 +62,8 @@ router.post("/login", function(req, res){
     authentication(req, res)
 });
 
-// Getting Campgrounds
+// CAMPGROUNDS
+// Getting
 router.get("/campgrounds", function(req, res){
 	Campground.find({}, function(err, allCampgrounds){
 		if(err){
@@ -91,7 +99,7 @@ router.get("/campgrounds/:id", function(req, res){
 		}
 	});
 });
-// Modifying Campgrounds
+// Modifying
 router.post("/campgrounds", middleware.loggedInOnly, function(req, res){
     var newCampground = req.body.campground;
     var author = {
@@ -125,6 +133,123 @@ router.put("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res)
                     sendJSON(res, { message: "Error updating campground", error: err}, "error")
                 } else {
                     sendJSON(res, { message: "Successfully updated campground" }, "success")
+                }
+            });
+        }
+    });
+});
+router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err || !foundCampground){
+            sendJSON(res, { message: "No Campgroud found to delete", error: err }, "error");
+        } else {
+            Campground.deleteOne({ _id: foundCampground._id }, function(err){
+                if(err){
+                    sendJSON(res, { message: "Error deleting campground", error: err }, "error");
+                } else {
+                    User.findById(foundCampground.author.id, function(err, foundUser){
+                        var errors = [];
+                        if(!err && foundUser){
+                            var campgroundIndex = foundUser.campgrounds.findIndex(function(c){
+                                return c.equals(foundCampground._id);
+                            })
+                            foundUser.campgrounds.splice(campgroundIndex, 1);
+                            foundUser.save();
+                        } else {
+                            errors.push("Error finding associated user");
+                        }
+                        if(foundCampground.comments.length > 0){
+                            Comment.findById(foundCampground.comments[0], function(err, foundComment){
+                                if(err || !foundComment){
+                                    errors.push("Error finding comment to delete")
+                                } else {
+                                    var campgroundInfo = foundComment.campground;
+                                    Comment.deleteMany({ campground: campgroundInfo }, function(err){
+                                        if(err){
+                                            errors.push("Error deleting comments")
+                                        }
+                                        if(errors.length > 0){
+                                            sendJSON(res, { message: "Deleted campground but some errors occured. See \"errors\"", errors: errors }, "success")
+                                        } else {
+                                            sendJSON(res, { message: "Successfully deleted campground and comments" }, "success")
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            sendJSON(res, { message: "Successfully deleted campground!" }, "success");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+// COMMENTS
+router.post("/campgrounds/:id/comments", middleware.loggedInOnly, function(req, res){
+	Campground.findById(req.params.id, function(err, campground){
+		var campgroundPath = "/campgrounds/"+req.params.id;
+		if(err){
+            sendJSON(res, { message: "Error finding associated campground", error: err }, "error");
+		} else if(campground){
+			Comment.create(req.body.comment, function(err, comment){
+				if(err || !comment){
+                    sendJSON(res, { message: "Error creating comment", error: err }, "error");
+				} else {
+                    comment.author.username = req.user.username;
+                    comment.author.id = req.user._id;
+                    comment.campground.name = campground.name;
+                    comment.campground.id = campground._id;
+                    comment.save();
+					campground.comments.push(comment);
+					campground.save();
+                    User.findById(req.user._id, function(err, user){
+                        if(err){
+                            sendJSON(res, { message: "Error finding associated user", error: err }, "error");
+                        } else {
+                            user.comments.push(comment._id);
+                            user.save();
+                            sendJSON(res, { message: "Successfully created comment and saved it to user!" }, "success")
+                        }
+                    });
+				}
+			});
+		} else {
+            sendJSON(res, { message: "No campground associated" }, "error");
+        }
+	});
+})
+router.put("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly, function(req, res){
+    Comment.updateOne({ _id: req.params.commentid }, { $set: req.body.comment }, function(err, comment){
+        if(err){
+            sendJSON(res, { message: "Error updating comment", error: err }, "error");
+        } else if(comment) {
+            sendJSON(res, { message: "Successfully updated Campground!" }, "success")
+        } else {
+            sendJSON(res, { message: "No comment was updated" }, "error");
+        }
+    });
+});
+router.delete("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly, function(req, res){
+    Comment.findById(req.params.commentid, function(err, foundComment){
+        if(err){
+            sendJSON(res, { message: "Error finding comment to delete", error: err }, "error")
+        } else {
+            Comment.deleteOne({ _id: req.params.commentid }, function(err){
+                if(err){
+                    sendJSON(res, { message: "Error deleting comment", error: err }, "error");
+                } else {
+                    User.findById(foundComment.author.id, function(err, foundUser){
+                        if(!err && foundUser) {
+                            var commentIndex = foundUser.comments.findIndex(function(c){
+                                return c.equals(foundComment._id);
+                            })
+                            foundUser.comments.splice(commentIndex, 1);
+                            foundUser.save();
+                        }
+                        sendJSON(res, { message: "Successfully deleted comment" }, "success");
+                    })
                 }
             });
         }
