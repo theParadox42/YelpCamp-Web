@@ -20,6 +20,9 @@ var express     = require("express"),
 router.get("/", function(req, res){
     sendJSON(res, { message: "YelpCamp API here!" }, "message")
 });
+router.get("/docs", function(req, res){
+    res.render("api-docs");
+})
 
 // USER
 router.post("/register", function(req, res){
@@ -110,7 +113,7 @@ router.post("/campgrounds", middleware.loggedInOnly, function(req, res){
     User.findById(req.user._id, function(userErr, foundUser){
         Campground.create(newCampground, function(campgroundErr, newCamp){
     		if(campgroundErr){
-                sendJSON(res, { message: "Error creating campground", error: campgroundErr }, "")
+                sendJSON(res, { message: "Error creating campground", error: campgroundErr }, "error")
     		} else {
                 if(!userErr && foundUser){
                     foundUser.campgrounds.push(newCamp._id);
@@ -138,7 +141,7 @@ router.put("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res)
         }
     });
 });
-router.delete("/:id", middleware.ownsCampgroundOnly, function(req, res){
+router.delete("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res){
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err || !foundCampground){
             sendJSON(res, { message: "No Campgroud found to delete", error: err }, "error");

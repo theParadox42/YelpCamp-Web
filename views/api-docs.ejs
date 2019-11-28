@@ -1,0 +1,65 @@
+<% include partials/header %>
+
+<div class="container">
+    <div class="text-center">
+        <h1>API Docs</h1>
+        <strong>
+            Put <code>/api/v1/</code> before all of these requests
+        </strong>
+    </div>
+    <h2>Returned JSON Structure</h2>
+    <p>
+        <code>
+            {
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;"data": {
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"message": "YelpCamp API here!"
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;},
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;"type": "message"
+            <br>
+            }
+        </code>
+        <br>
+        <em><code>"data"</code></em> will always be one of the following
+        <ul>
+            <li>An object with a message</li>
+            <li>An object with a message and an error</li>
+            <li>An object with a message and an user</li>
+            <li>An object message and an array of errors</li>
+            <li>An object defined by <code>"type"</code></li>
+            <li>An <strong>Array</strong> of objects defined by <code>"type"</code></li>
+        </ul>
+        <em><code>"type"</code></em>: Returns either
+        <ul>
+            <li><code>"success"</code> upon a <code>"post"</code>/<code>"put"</code>/<code>"delete"</code> request showing completion</li>
+            <li><code>"error"</code> upon any request showing failure to retrieve/modify any data</li>
+            <li><code>"campgrounds"</code> meaning the <code>"data"</code> attribute will be an array of campgrounds</li>
+            <li><code>"campground"</code> meaning the <code>"data"</code> attribute will be a single campground object</li>
+        </ul>
+    </p>
+    <h3>User Authentication</h3>
+    <ul>
+        <li><code>"POST": /register</code> Requires: username, email, password, admin signup code</li>
+        <li><code>"POST": /login</code> Requires: username, password</li>
+    </ul>
+    <h3>Campgrounds</h3>
+    <ul>
+        <li><code>"GET": /campgrounds</code> Returns <code>"type"</code> of "campgrounds" and <code>"data"</code> returns an array of campground objects</li>
+        <li><code>"GET": /campgrounds/search?q=[SEARCH]</code> Similar to <code>/campgrounds</code> but requires a search input. Replace [SEARCH] with the search query</li>
+        <li><code>"GET": /campgrounds/:id</code> Returns a type of "campground" and <code>"data"</code> returns the campground object. Replace <code>:id</code> with a campground <code>._id</code> that can be accessed through <code>/campgrounds</code> or the search route</li>
+        <li><code>"POST": /campgrounds</code> Requires sender to be logged in, and requires a campground object with a name, description, img (image url address), and price attributes</li>
+        <li><code>"PUT": /campgrounds/:id</code> Identicle to <code>"POST": /campgrounds</code> but requries a campground id to update and the user to own the campground in question</li>
+        <li><code>"DELETE": /campgrounds/:id</code> Requries user to own the current campground and have the campground id</li>
+    </ul>
+    <h3>Comments</h3>
+    <ul>
+        <li><code>"POST": /campgrounds/:id/comments</code> Posts a comment to the campground specified by the <code>:id</code> param. Requires user to be logged in. Comment object is requried with a text attribute.</li>
+        <li><code>"PUT": /campgrounds/:id/comments/:commentid</code> Updates a comment, requries the user to own comment and a comment object with a text attribute.</li>
+        <li><code>"DELETE": /campgrounds/:id/comments/:commentid</code> Deletes a comment, requries user to be logged in and own comment</li>
+    </ul>
+</div>
+
+<% include partials/footer %>

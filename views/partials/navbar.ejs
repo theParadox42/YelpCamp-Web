@@ -16,16 +16,17 @@
 		</form>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/api/v1/docs">API</a></li>
 				<% if(user){ %>
-					<li><a href="/profile">
-						Signed in as <strong><%= user.username %></strong>
-					</a></li>
-					<li><a href="/logout">Logout</a></li>
-					<% } else { %>
-						<li><a href="/login">Login</a></li>
-						<li><a href="/register">Sign Up</a></li>
-						<% } %>
-					</ul>
-				</div>
-			</div>
-		</nav>
+				<li><a href="/profile">
+					Signed in as <strong><%= user.username %></strong>
+				</a></li>
+				<li><a href="/logout">Logout</a></li>
+				<% } else { %>
+				<li><a href="/login">Login</a></li>
+				<li><a href="/register">Sign Up</a></li>
+				<% } %>
+			</ul>
+		</div>
+	</div>
+</nav>
