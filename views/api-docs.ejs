@@ -38,12 +38,14 @@
             <li><code>"error"</code> upon any request showing failure to retrieve/modify any data</li>
             <li><code>"campgrounds"</code> meaning the <code>"data"</code> attribute will be an array of campgrounds</li>
             <li><code>"campground"</code> meaning the <code>"data"</code> attribute will be a single campground object</li>
+            <li><code>"user"</code> meaning the <code>"data"</code> attribute will be a user object with an array of campgrounds and comments inside</li>
         </ul>
     </p>
-    <h3>User Authentication</h3>
+    <h3>User</h3>
     <ul>
         <li><code>"POST": /register</code> Requires: username, email, password, admin signup code</li>
         <li><code>"POST": /login</code> Requires: username, password</li>
+        <li><code>"GET": /profile</code> Requires a user to be logged in, and will return user object populated with campgrounds and comments</li>
     </ul>
     <h3>Campgrounds</h3>
     <ul>
