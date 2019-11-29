@@ -79,7 +79,7 @@ router.get("/profile", middleware.loggedInOnly, function(req, res){
 // CAMPGROUNDS
 // Getting
 router.get("/campgrounds", function(req, res){
-	Campground.find({}, function(err, allCampgrounds){
+	Campground.find({}).populate("comments").exec(function(err, allCampgrounds){
 		if(err){
             sendJSON(res, { message: "Error finding any campgrounds", error: err }, "error")
 		} else {
