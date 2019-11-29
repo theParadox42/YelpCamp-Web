@@ -64,6 +64,17 @@ router.post("/login", function(req, res){
     });
     authentication(req, res)
 });
+router.get("/profile", middleware.loggedInOnly, function(req, res){
+    User.findOne({ username: req.user.username }).populate("campgrounds comments").exec(function(err, foundUser){
+        if(err){
+            sendJSON(res, { message: "Error finding user", error: err }, "error")
+        } else if(foundUser){
+            sendJSON(res, foundUser, "user")
+        } else {
+            sendJSON(res, { message: "No User Found!"}, "error")
+        }
+    })
+})
 
 // CAMPGROUNDS
 // Getting
