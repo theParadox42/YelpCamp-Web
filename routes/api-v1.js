@@ -75,6 +75,21 @@ router.get("/profile", middleware.loggedInOnly, function(req, res){
         }
     })
 })
+router.get("/profile/:username", function(req, res){
+    User.findOne({ username: req.params.username }).populate("campgrounds comments").exec(function(err, foundUser){
+        if(err){
+            sendJSON(res, { message: "Error finding user", error: err }, "error")
+        } else if(foundUser){
+            sendJSON(res, foundUser, "user")
+        } else {
+            sendJSON(res, { message: "No User Found!"}, "error")
+        }
+    })
+})
+router.post("/logout", middleware.loggedInOnly, function(req, res){
+    req.logout();
+    sendJSON(res, { message: "Logged user out!" }, "success");
+})
 
 // CAMPGROUNDS
 // Getting

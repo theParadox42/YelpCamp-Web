@@ -45,7 +45,9 @@
     <ul>
         <li><code>"POST": /register</code> Requires: username, email, password, admin signup code</li>
         <li><code>"POST": /login</code> Requires: username, password</li>
+        <li><code>"POST": /logout</code> Requires a user to be logged in. Will always be successfull</li>
         <li><code>"GET": /profile</code> Requires a user to be logged in, and will return user object populated with campgrounds and comments</li>
+        <li><code>"GET": /profile/:username</code> Returns a type of "user" and a user object from the given username</li>
     </ul>
     <h3>Campgrounds</h3>
     <ul>
