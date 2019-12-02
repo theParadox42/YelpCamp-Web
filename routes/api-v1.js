@@ -14,12 +14,15 @@ var express     = require("express"),
     User        = require("../models/user"),
     Comment     = require("../models/comment")
     middleware  = require("../middleware"),
-    sendJSON    = require("../models/sendJSON");
+    sendJSON    = require("../helpers/sendJSON"),
+    sinceCreated= require("../helpers/addSinceCreated")
+    moment      = require("moment");
 
 //My first version of a YelpCamp API
 router.get("/", function(req, res){
     sendJSON(res, { message: "YelpCamp API here!" }, "message")
 });
+// Documentation Visit "/api/v1/docs" to view
 router.get("/docs", function(req, res){
     res.render("api-docs");
 })
@@ -64,12 +67,12 @@ router.post("/login", function(req, res){
     });
     authentication(req, res)
 });
-router.get("/profile", middleware.loggedInOnly, function(req, res){
+router.get("/profile", middleware.api.loggedInOnly, function(req, res){
     User.findOne({ username: req.user.username }).populate("campgrounds comments").exec(function(err, foundUser){
         if(err){
             sendJSON(res, { message: "Error finding user", error: err }, "error")
         } else if(foundUser){
-            sendJSON(res, foundUser, "user")
+            sendJSON(res, sinceCreated.object(foundUser), "user")
         } else {
             sendJSON(res, { message: "No User Found!"}, "error")
         }
@@ -80,13 +83,13 @@ router.get("/profile/:username", function(req, res){
         if(err){
             sendJSON(res, { message: "Error finding user", error: err }, "error")
         } else if(foundUser){
-            sendJSON(res, foundUser, "user")
+            sendJSON(res, sinceCreated.object(foundUser), "user")
         } else {
             sendJSON(res, { message: "No User Found!"}, "error")
         }
     })
 })
-router.post("/logout", middleware.loggedInOnly, function(req, res){
+router.post("/logout", middleware.api.loggedInOnly, function(req, res){
     req.logout();
     sendJSON(res, { message: "Logged user out!" }, "success");
 })
@@ -98,7 +101,7 @@ router.get("/campgrounds", function(req, res){
 		if(err){
             sendJSON(res, { message: "Error finding any campgrounds", error: err }, "error")
 		} else {
-            sendJSON(res, allCampgrounds, "campgrounds");
+            sendJSON(res, sinceCreated.array(allCampgrounds), "campgrounds");
 		}
 	});
 });
@@ -111,7 +114,7 @@ router.get("/campgrounds/search", function(req, res){
         if (err) {
             sendJSON(res, { message: "Error searching campgrounds", error: err }, "error");
         } else {
-            sendJSON(res, foundCampgrounds, "campgrounds");
+            sendJSON(res, sinceCreated.array(foundCampgrounds), "campgrounds");
         }
     })
 });
@@ -121,7 +124,7 @@ router.get("/campgrounds/:id", function(req, res){
             sendJSON(res, { message: "Error finding campground", error: err }, "error")
 		} else {
 			if(foundCampground){
-                sendJSON(res, foundCampground, "campground")
+                sendJSON(res, sinceCreated.object(foundCampground), "campground")
 			} else {
                 sendJSON(res, { message: "No Campground found" }, "error")
 			}
@@ -129,7 +132,7 @@ router.get("/campgrounds/:id", function(req, res){
 	});
 });
 // Modifying
-router.post("/campgrounds", middleware.loggedInOnly, function(req, res){
+router.post("/campgrounds", middleware.api.loggedInOnly, function(req, res){
     var newCampground = req.body.campground;
     var author = {
         id: req.user._id,
@@ -152,7 +155,7 @@ router.post("/campgrounds", middleware.loggedInOnly, function(req, res){
     	});
     });
 });
-router.put("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res){
+router.put("/campgrounds/:id", middleware.api.ownsCampgroundOnly, function(req, res){
     Campground.findById(req.params.id, function(err, foundCampground){
         if(err || !foundCampground){
             sendJSON(res, { message: "Error finding campground to update", error: err }, "error")
@@ -167,7 +170,7 @@ router.put("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res)
         }
     });
 });
-router.delete("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, res){
+router.delete("/campgrounds/:id", middleware.api.ownsCampgroundOnly, function(req, res){
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err || !foundCampground){
             sendJSON(res, { message: "No Campgroud found to delete", error: err }, "error");
@@ -216,7 +219,7 @@ router.delete("/campgrounds/:id", middleware.ownsCampgroundOnly, function(req, r
 });
 
 // COMMENTS
-router.post("/campgrounds/:id/comments", middleware.loggedInOnly, function(req, res){
+router.post("/campgrounds/:id/comments", middleware.api.loggedInOnly, function(req, res){
 	Campground.findById(req.params.id, function(err, campground){
 		var campgroundPath = "/campgrounds/"+req.params.id;
 		if(err){
@@ -249,7 +252,7 @@ router.post("/campgrounds/:id/comments", middleware.loggedInOnly, function(req, 
         }
 	});
 })
-router.put("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly, function(req, res){
+router.put("/campgrounds/:id/comments/:commentid", middleware.api.ownsCommentOnly, function(req, res){
     Comment.updateOne({ _id: req.params.commentid }, { $set: req.body.comment }, function(err, comment){
         if(err){
             sendJSON(res, { message: "Error updating comment", error: err }, "error");
@@ -260,7 +263,7 @@ router.put("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly, f
         }
     });
 });
-router.delete("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly, function(req, res){
+router.delete("/campgrounds/:id/comments/:commentid", middleware.api.ownsCommentOnly, function(req, res){
     Comment.findById(req.params.commentid, function(err, foundComment){
         if(err){
             sendJSON(res, { message: "Error finding comment to delete", error: err }, "error")
@@ -287,10 +290,10 @@ router.delete("/campgrounds/:id/comments/:commentid", middleware.ownsCommentOnly
 
 // Other
 router.get("*", function(req, res){
-    sendJSON(res, { message: "Page not found, make sure you are using correct version of the API and everything is spelled correctly", error: "404" }, "error");
+    sendJSON(res, { message: "404. Page not found, make sure you are using correct version of the API and everything is spelled correctly" }, "error");
 });
 router.post("*", function(req, res){
-    sendJSON(res, { message: "Page not found, make sure you are using correct version of the API and everything is spelled correctly", error: "404" }, "error");
+    sendJSON(res, { message: "404. Page not found, make sure you are using correct version of the API and everything is spelled correctly" }, "error");
 });
 
 module.exports = router

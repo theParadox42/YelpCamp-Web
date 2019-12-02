@@ -1,9 +1,10 @@
 // Middleware file
 
 var Campground  = require("../models/campground"),
-    Comment     = require("../models/comment");
+    Comment     = require("../models/comment"),
+    sendJSON    = require("../helpers/sendJSON");
 
-module.exports = {
+var middleware = {
     https: function (req, res, next) {
         // The 'x-forwarded-proto' check is for Heroku
         if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
@@ -79,3 +80,65 @@ module.exports = {
         }
     }
 };
+
+middleware.api = {
+    loggedInOnly: function(req, res, next){
+        if(req.isAuthenticated()){
+            return next();
+        }
+        sendJSON(res, { message: "You need to be logged in to do that!" }, "error")
+    },
+    isAdmin: function(req, res, next){
+        if(req.user && req.user.admin){
+            return next();
+        } else if(req.user) {
+            sendJSON(res, { message: "You need to be an admin to do that" }, "error")
+        } else {
+            sendJSON(res, { message: "You need to login as admin to do that!" }, "error")
+        }
+    },
+    isntAdmin: function(req, res, next){
+        if(req.user) {
+            if(req.user.admin){
+                sendJSON(res, { message: "The admin can't do that!" }, "error")
+            } else {
+                next();
+            }
+        } else {
+            sendJSON(res, { message: "You need to log in to do that!" }, "error")
+        }
+    },
+    ownsCampgroundOnly: function(req, res, next){
+        if(req.isAuthenticated()){
+            Campground.findById(req.params.id, function(err, foundCampground){
+                if(err){
+                    sendJSON(res, { message: "Error finding campground", error: err }, "error")
+                } else if(foundCampground.author.id.equals(req.user._id) || req.user.admin){
+                    next();
+                } else {
+                    sendJSON(res, { message: "You don't have control over that campground" }, "error")
+                }
+            });
+        } else {
+            sendJSON(res, { message: "You need to be logged in to do that!" }, "error");
+        }
+    },
+    ownsCommentOnly: function(req, res, next){
+        if(req.isAuthenticated()){
+            Comment.findById(req.params.commentid, function(err, foundComment){
+                if(err){
+                    sendJSON(res, { message: "Error finding comment", error: err }, "error")
+                } else if(foundComment.author.id.equals(req.user._id) || req.user.admin){
+                    next();
+                } else {
+                    sendJSON(res, { message: "You don't have control over that comment"})
+                }
+            });
+        } else {
+            sendJSON(res, { message: "You need to be logged in to do that!" }, "error")
+        }
+    }
+}
+
+
+module.exports = middleware;

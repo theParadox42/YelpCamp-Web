@@ -83,9 +83,9 @@ router.post("/", middleware.loggedInOnly, upload.single('image'), function(req, 
 // Search campgrounds
 router.get("/search", function(req, res) {
     if (typeof req.query.q != "string") {
-        console.log(req.query.q);
-        req.body.q = ""
+        req.query.q = ""
     }
+    console.log(typeof req.query.q);
     Campground.find({ $text: { $search: req.query.q } }, function(err, foundCampgrounds) {
         if (err) {
             console.log(err);

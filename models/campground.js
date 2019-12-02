@@ -7,6 +7,7 @@ var campgroundSchema = new mongoose.Schema({
 	img: String,
 	description: String,
 	createdAt: { type: Date, default: Date.now },
+	sinceCreated: String,
     author: {
         id: {
             type: mongoose.Schema.Types.ObjectId,
