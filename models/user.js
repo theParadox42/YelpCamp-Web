@@ -6,6 +6,7 @@ var userSchema = new mongoose.Schema({
     username: String,
     password: String,
     admin: Boolean,
+    sinceCreated: String,
     campgrounds: [
         {
             type: mongoose.Schema.Types.ObjectId,

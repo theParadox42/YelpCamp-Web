@@ -11,5 +11,12 @@ module.exports = {
     object: function(objectItem){
         objectItem.sinceCreated = moment(objectItem.createdAt).fromNow()
         return objectItem
+    },
+    arrayAndObject(object, arrayKey){
+        for(var i = 0; i < object[arrayKey].length; i ++){
+            object[arrayKey][i].sinceCreated = moment(object[arrayKey][i].createdAt).fromNow()
+        }
+        object.sinceCreated = moment(object.createdAt).fromNow()
+        return object
     }
 }

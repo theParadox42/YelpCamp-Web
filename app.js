@@ -24,7 +24,7 @@ var _				= require("dotenv").config(),
 // SETUP
 
 // Mongoose
-mongoose.connect(require("./models/connection"), { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(require("./helpers/connection"), { useNewUrlParser: true, useUnifiedTopology: true });
 // Moment Package
 app.locals.moment = require('moment');
 // File stuff

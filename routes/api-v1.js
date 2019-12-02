@@ -124,7 +124,7 @@ router.get("/campgrounds/:id", function(req, res){
             sendJSON(res, { message: "Error finding campground", error: err }, "error")
 		} else {
 			if(foundCampground){
-                sendJSON(res, sinceCreated.object(foundCampground), "campground")
+                sendJSON(res, sinceCreated.arrayAndObject(foundCampground, "comments"), "campground")
 			} else {
                 sendJSON(res, { message: "No Campground found" }, "error")
 			}
