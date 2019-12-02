@@ -83,7 +83,9 @@ router.get("/profile/:username", function(req, res){
         if(err){
             sendJSON(res, { message: "Error finding user", error: err }, "error")
         } else if(foundUser){
-            sendJSON(res, sinceCreated.arrayAndObject(foundUser, "campgrounds"), "user")
+            sendJSON(res,
+                sinceCreated.arrayAndObject(sinceCreated.arrayAndObject(foundUser, "campgrounds"), "comments"), 
+                "user")
         } else {
             sendJSON(res, { message: "No User Found!"}, "error")
         }
