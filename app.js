@@ -10,6 +10,7 @@ var _				= require("dotenv").config(),
 	methodOverride	= require("method-override"),
 	passport		= require("passport"),
 	localStrategy	= require("passport-local"),
+	basicStrategy   = require("passport-http").BasicStrategy,
 	expressSession	= require("express-session"),
 	Campground    	= require("./models/campground"),
 	Comment 		= require("./models/comment"),
@@ -41,6 +42,7 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new localStrategy(User.authenticate()));
+passport.use(new basicStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 // Flash setup and locals

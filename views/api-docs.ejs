@@ -6,6 +6,7 @@
         <strong>
             Put <code>/api/v1/</code> before all of these requests
         </strong>
+        <p>Any request that requires a user to be logged in will need an authorization header to be sent with the request</p>
     </div>
     <h2>Returned JSON Structure</h2>
     <p>
@@ -44,8 +45,6 @@
     <h3>User</h3>
     <ul>
         <li><code>"POST": /register</code> Requires: username, email, password, admin signup code</li>
-        <li><code>"POST": /login</code> Requires: username, password</li>
-        <li><code>"POST": /logout</code> Requires a user to be logged in. Will always be successfull</li>
         <li><code>"GET": /profile</code> Requires a user to be logged in, and will return user object populated with campgrounds and comments</li>
         <li><code>"GET": /profile/:username</code> Returns a type of "user" and a user object from the given username</li>
     </ul>

@@ -2,7 +2,8 @@
 
 var Campground  = require("../models/campground"),
     Comment     = require("../models/comment"),
-    sendJSON    = require("../helpers/sendJSON");
+    sendJSON    = require("../helpers/sendJSON"),
+    passport    = require("passport");
 
 var middleware = {
     https: function (req, res, next) {
@@ -81,35 +82,53 @@ var middleware = {
     }
 };
 
+middleware.loginUser = function(req, res, callback) {
+    let authenticater = passport.authenticate("basic", function(err, user){
+        if(err){
+            sendJSON(res, { message: "Error loggin in", error: err }, "error");
+        } else if (user) {
+            req.user = user;
+            callback(user);
+        } else {
+            sendJSON(res, { message: "Wrong username or password!" }, "error");
+        }
+    });
+    authenticater(req, res);
+}
+
 middleware.api = {
     loggedInOnly: function(req, res, next){
-        if(req.isAuthenticated()){
-            return next();
-        }
-        sendJSON(res, { message: "You need to be logged in to do that!" }, "error")
+        middleware.loginUser(req, res, function(user) {
+            next();
+        });
     },
     isAdmin: function(req, res, next){
-        if(req.user && req.user.admin){
-            return next();
-        } else if(req.user) {
-            sendJSON(res, { message: "You need to be an admin to do that" }, "error")
-        } else {
-            sendJSON(res, { message: "You need to login as admin to do that!" }, "error")
-        }
+        middleware.loginUser(req, res, function(user) {
+            if (user.admin) {
+                next();
+            } else {
+                sendJSON(res, { message: "Not an admin!" }, "error");
+            }
+        });
     },
     isntAdmin: function(req, res, next){
-        if(req.user) {
-            if(req.user.admin){
-                sendJSON(res, { message: "The admin can't do that!" }, "error")
+        let authenticater = passport.authenticate("basic", function(err, user){
+            if(err){
+                sendJSON(res, { message: "Error loggin in", error: err }, "error");
+            } else if (user) {
+                if (!user.admin) {
+                    next();
+                } else {
+                    sendJSON(res, { message: "Admin's can't do that!" }, "error");
+                }
             } else {
-                next();
+                sendJSON(res, { message: "Wrong username or password!" }, "error");
             }
-        } else {
-            sendJSON(res, { message: "You need to log in to do that!" }, "error")
-        }
+        });
+        authenticater(req, res);
     },
     ownsCampgroundOnly: function(req, res, next){
-        if(req.isAuthenticated()){
+        middleware.loginUser(req, res, function(user) {
             Campground.findById(req.params.id, function(err, foundCampground){
                 if(err){
                     sendJSON(res, { message: "Error finding campground", error: err }, "error")
@@ -119,12 +138,10 @@ middleware.api = {
                     sendJSON(res, { message: "You don't have control over that campground" }, "error")
                 }
             });
-        } else {
-            sendJSON(res, { message: "You need to be logged in to do that!" }, "error");
-        }
+        });
     },
     ownsCommentOnly: function(req, res, next){
-        if(req.isAuthenticated()){
+        middleware.loginUser(req, res, function(user) {
             Comment.findById(req.params.commentid, function(err, foundComment){
                 if(err){
                     sendJSON(res, { message: "Error finding comment", error: err }, "error")
@@ -134,9 +151,7 @@ middleware.api = {
                     sendJSON(res, { message: "You don't have control over that comment"})
                 }
             });
-        } else {
-            sendJSON(res, { message: "You need to be logged in to do that!" }, "error")
-        }
+        });
     }
 }
 

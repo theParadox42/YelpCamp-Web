@@ -57,16 +57,6 @@ router.post("/register", function(req, res){
         sendJSON(res, { message: "No Admin Signup Code" }, "error");
     }
 });
-router.post("/login", function(req, res){
-    var authentication = passport.authenticate("local", function(err, user){
-        if(err){
-            sendJSON(res, { message: "Error authenticating", error: err }, "error")
-        } else {
-            sendJSON(res, { message: "successfully logged in!", user: user }, "success")
-        }
-    });
-    authentication(req, res)
-});
 router.get("/profile", middleware.api.loggedInOnly, function(req, res){
     User.findOne({ username: req.user.username }).populate("campgrounds comments").exec(function(err, foundUser){
         if(err){
@@ -84,16 +74,12 @@ router.get("/profile/:username", function(req, res){
             sendJSON(res, { message: "Error finding user", error: err }, "error")
         } else if(foundUser){
             sendJSON(res,
-                sinceCreated.arrayAndObject(sinceCreated.arrayAndObject(foundUser, "campgrounds"), "comments"), 
+                sinceCreated.arrayAndObject(sinceCreated.arrayAndObject(foundUser, "campgrounds"), "comments"),
                 "user")
         } else {
             sendJSON(res, { message: "No User Found!"}, "error")
         }
     })
-})
-router.post("/logout", middleware.api.loggedInOnly, function(req, res){
-    req.logout();
-    sendJSON(res, { message: "Logged user out!" }, "success");
 })
 
 // CAMPGROUNDS
