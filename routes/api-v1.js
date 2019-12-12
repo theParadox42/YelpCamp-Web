@@ -57,6 +57,9 @@ router.post("/register", function(req, res){
         sendJSON(res, { message: "No Admin Signup Code" }, "error");
     }
 });
+router.post("/checkuser", middleware.api.loggedInOnly, function(req, res){
+    sendJSON(res, { message: "You are logged in" }, "success");
+});
 router.get("/profile", middleware.api.loggedInOnly, function(req, res){
     User.findOne({ username: req.user.username }).populate("campgrounds comments").exec(function(err, foundUser){
         if(err){
