@@ -101,7 +101,7 @@ router.get("/campgrounds/search", function(req, res){
         console.log(req.query.q);
         req.body.q = ""
     }
-    Campground.find({ $text: { $search: req.query.q } }, function(err, foundCampgrounds) {
+    Campground.find({ $text: { $search: req.query.q } }).populate("comments").exec(function(err, foundCampgrounds) {
         if (err) {
             sendJSON(res, { message: "Error searching campgrounds", error: err }, "error");
         } else {
