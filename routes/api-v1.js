@@ -216,7 +216,17 @@ router.post("/campgrounds/:id/comments", middleware.api.loggedInOnly, function(r
 		if(err){
             sendJSON(res, { message: "Error finding associated campground", error: err }, "error");
 		} else if(campground){
-			Comment.create(req.body.comment, function(err, comment){
+            var commentObject = {
+                text: "Comment not found"
+            }
+            if (req.body.text) {
+                commentObject = {
+                    text: req.body.text
+                }
+            } else if (req.body.comment) {
+                commentObject = req.body.comment
+            }
+			Comment.create(commentObject, function(err, comment){
 				if(err || !comment){
                     sendJSON(res, { message: "Error creating comment", error: err }, "error");
 				} else {
