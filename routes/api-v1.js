@@ -15,7 +15,8 @@ var express     = require("express"),
     Comment     = require("../models/comment")
     middleware  = require("../middleware"),
     sendJSON    = require("../helpers/sendJSON"),
-    sinceCreated= require("../helpers/addSinceCreated")
+    sinceCreated= require("../helpers/addSinceCreated"),
+    deleteUser  = require("../helpers/deleteUser"),
     moment      = require("moment");
 
 //My first version of a YelpCamp API
@@ -83,6 +84,9 @@ router.get("/profile/:username", function(req, res){
             sendJSON(res, { message: "No User Found!"}, "error")
         }
     })
+})
+router.delete("/user/delete", middleware.api.isntAdmin function(req, res){
+    sendJSON(deleteUser(req.user._id, req, res))
 })
 
 // CAMPGROUNDS

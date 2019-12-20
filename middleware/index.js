@@ -112,20 +112,13 @@ middleware.api = {
         });
     },
     isntAdmin: function(req, res, next){
-        let authenticater = passport.authenticate("basic", function(err, user){
-            if(err){
-                sendJSON(res, { message: "Error loggin in", error: err }, "error");
-            } else if (user) {
-                if (!user.admin) {
-                    next();
-                } else {
-                    sendJSON(res, { message: "Admin's can't do that!" }, "error");
-                }
+        middleware.loginUser(req, res, function(user) {
+            if (!user.admin) {
+                next();
             } else {
-                sendJSON(res, { message: "Wrong username or password!" }, "error");
+                sendJSON(res, { message: "Admin's can't do that!" }, "error");
             }
-        });
-        authenticater(req, res);
+        })
     },
     ownsCampgroundOnly: function(req, res, next){
         middleware.loginUser(req, res, function(user) {

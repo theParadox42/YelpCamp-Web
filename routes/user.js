@@ -6,6 +6,7 @@ var express     = require("express"),
     Campground  = require("../models/campground"),
     Comment     = require("../models/comment"),
     User        = require("../models/user"),
+    deleteUser  = require("../helpers/deleteUser"),
     middleware  = require("../middleware");
 
 // AUTH ROUTES
@@ -97,43 +98,15 @@ router.get("/user/delete/:uid", middleware.isAdmin, function(req, res){
         res.render("users/admindelete", { deleteUser: foundUser });
     })
 })
-// DESTROY a user
-function deleteUser(uid, req, res){
-    User.findById(uid).populate("campgrounds comments").exec(function(err, foundUser){
-        if(err || !foundUser){
-            req.flash("error", err?"Error finding user to delete":"No user found to delete");
-            res.redirect("/profile");
-        } else {
-            User.deleteOne({ _id: uid }, function(err){
-                if(err){
-                    req.flash("error", "Error deleting user");
-                    res.redirect("/profile");
-                } else {
-                    var authorId = new ObjectId(uid);
-                    Comment.deleteMany({ "author.id": authorId }, function(err){
-                        if(err){
-                            req.flash("error", "Error deleting associated comments");
-                        }
-                        Campground.deleteMany({ "author.id": authorId }, function(err){
-                            if(err){
-                                req.flash("error", "Error deleting associated campgrounds");
-                            } else {
-                                req.flash("success", "Deleted user and their associated campgrounds and comments");
-                            }
-                            req.logout();
-                            res.redirect("/");
-                        })
-                    })
-                }
-            })
-        }
-    });
-};
 router.delete("/user/delete", middleware.isntAdmin, function(req, res){
-    deleteUser(req.user._id, req, res);
+    var response = deleteUser(req.user._id, req, res);
+    req.flash(response.type, response.data.message);
+    res.redirect("/");
 })
 router.delete("/user/delete/:uid", middleware.isAdmin, function(req, res){
-    deleteUser(req.params.uid, req, res);
+    var response = deleteUser(req.params.uid, req, res);
+    req.flash(response.type, response.data.message);
+    res.redirect("/");
 })
 
 // Send the router info
