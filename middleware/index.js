@@ -85,7 +85,7 @@ var middleware = {
 middleware.loginUser = function(req, res, callback) {
     let authenticater = passport.authenticate("basic", function(err, user){
         if(err){
-            sendJSON(res, { message: "Error loggin in", error: err }, "error");
+            sendJSON(res, { message: "Error logging in", error: err }, "error");
         } else if (user) {
             req.user = user;
             callback(user);

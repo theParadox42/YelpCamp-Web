@@ -86,12 +86,14 @@ router.get("/profile/:username", function(req, res){
     })
 })
 router.delete("/user/delete", middleware.api.isntAdmin, function(req, res){
-    var response = deleteUser(req.user._id, req, res);
-    sendJSON(res, response.data, response.type);
+    deleteUser(req.user._id, req, function(data){
+        res.json(data);
+    });
 });
 router.delete("/user/delete/:uid", middleware.api.isAdmin, function(req, res){
-    let response = deleteUser(req.params.uid, req, res);
-    sendJSON(res, response.data, response.type);
+    deleteUser(req.params.uid, req, function(data){
+        res.json(data);
+    });
 });
 
 // CAMPGROUNDS

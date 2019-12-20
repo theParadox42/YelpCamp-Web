@@ -99,14 +99,16 @@ router.get("/user/delete/:uid", middleware.isAdmin, function(req, res){
     })
 })
 router.delete("/user/delete", middleware.isntAdmin, function(req, res){
-    var response = deleteUser(req.user._id, req, res);
-    req.flash(response.type, response.data.message);
-    res.redirect("/");
+    deleteUser(req.user._id, req, function(response){
+        req.flash(response.type, response.data.message);
+        res.redirect("/");
+    });
 })
 router.delete("/user/delete/:uid", middleware.isAdmin, function(req, res){
-    var response = deleteUser(req.params.uid, req, res);
-    req.flash(response.type, response.data.message);
-    res.redirect("/");
+    deleteUser(req.params.uid, req, function(response){
+        req.flash(response.type, response.data.message);
+        res.redirect("/profile");
+    });
 })
 
 // Send the router info
