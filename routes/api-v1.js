@@ -85,7 +85,7 @@ router.get("/profile/:username", function(req, res){
         }
     })
 })
-router.delete("/user/delete", middleware.api.isntAdmin function(req, res){
+router.delete("/user/delete", middleware.api.isntAdmin, function(req, res){
     var response = deleteUser(req.user._id, req, res);
     sendJSON(res, response.data, response.type);
 });
