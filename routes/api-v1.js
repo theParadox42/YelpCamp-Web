@@ -86,8 +86,13 @@ router.get("/profile/:username", function(req, res){
     })
 })
 router.delete("/user/delete", middleware.api.isntAdmin function(req, res){
-    sendJSON(deleteUser(req.user._id, req, res))
-})
+    var response = deleteUser(req.user._id, req, res);
+    sendJSON(res, response.data, response.type);
+});
+router.delete("/user/delete/:uid", middleware.api.isAdmin, function(req, res){
+    let response = deleteUser(req.params.uid, req, res);
+    sendJSON(res, response.data, response.type);
+});
 
 // CAMPGROUNDS
 // Getting
