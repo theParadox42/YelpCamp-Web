@@ -135,7 +135,13 @@ router.get("/campgrounds/:id", function(req, res){
 });
 // Modifying
 router.post("/campgrounds", middleware.api.loggedInOnly, function(req, res){
-    var newCampground = req.body.campground;
+    var bodyCampground = req.body.campground || req.body
+    var newCampground = {
+        name: bodyCampground.name || "Untitled",
+        price: bodyCampground.price || 0,
+        img: bodyCampground.img,
+        description: bodyCampground.description || "No Description"
+    }
     var author = {
         id: req.user._id,
         username: req.user.username
