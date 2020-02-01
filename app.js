@@ -5,22 +5,18 @@ var _				= require("dotenv").config(),
 	app 			= express(),
 	bodyParser		= require("body-parser"),
 	mongoose		= require("mongoose"),
-	http 			= require("http"),
 	flash			= require("connect-flash"),
 	methodOverride	= require("method-override"),
 	passport		= require("passport"),
 	localStrategy	= require("passport-local"),
 	basicStrategy   = require("passport-http").BasicStrategy,
 	expressSession	= require("express-session"),
-	Campground    	= require("./models/campground"),
-	Comment 		= require("./models/comment"),
 	User 			= require("./models/user"),
 	indexRoutes		= require("./routes/index.js"),
 	userRoutes		= require("./routes/user.js"),
 	campingRoutes	= require("./routes/campgrounds.js"),
 	commentRoutes	= require("./routes/comments.js"),
-	apiRoutesV1		= require("./routes/api-v1.js"),
-	seedDB			= require("./seeds");
+	apiRoutesV1		= require("./routes/api-v1.js");
 
 // SETUP
 
