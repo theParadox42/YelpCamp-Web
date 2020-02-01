@@ -12,11 +12,11 @@ var _				= require("dotenv").config(),
 	basicStrategy   = require("passport-http").BasicStrategy,
 	expressSession	= require("express-session"),
 	User 			= require("./models/user"),
-	indexRoutes		= require("./routes/index.js"),
-	userRoutes		= require("./routes/user.js"),
-	campingRoutes	= require("./routes/campgrounds.js"),
-	commentRoutes	= require("./routes/comments.js"),
-	apiRoutesV1		= require("./routes/api-v1.js");
+	indexRoutes		= require("./routes/index"),
+	userRoutes		= require("./routes/user"),
+	campingRoutes	= require("./routes/campgrounds"),
+	commentRoutes	= require("./routes/comments"),
+	apiRoutesV1		= require("./routes/api-v1");
 
 // SETUP
 
