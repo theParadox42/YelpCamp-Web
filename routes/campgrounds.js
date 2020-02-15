@@ -85,7 +85,6 @@ router.get("/search", function(req, res) {
     if (typeof req.query.q != "string") {
         req.query.q = ""
     }
-    console.log(typeof req.query.q);
     Campground.find({ $text: { $search: req.query.q } }, function(err, foundCampgrounds) {
         if (err) {
             console.log(err);
