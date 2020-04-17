@@ -1,6 +1,5 @@
 
-var express = require("express"),
-    User    = require("../models/user"),
+var User    = require("../models/user"),
     Comment = require("../models/comment"),
     Campground  = require("../models/campground"),
     mongoose    = require("mongoose"),
