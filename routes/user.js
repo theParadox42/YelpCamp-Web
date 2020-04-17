@@ -1,10 +1,6 @@
 var express     = require("express"),
     router      = express.Router(),
     passport    = require("passport"),
-    mongoose    = require("mongoose"),
-    ObjectId    = mongoose.Types.ObjectId,
-    Campground  = require("../models/campground"),
-    Comment     = require("../models/comment"),
     User        = require("../models/user"),
     deleteUser  = require("../helpers/deleteUser"),
     middleware  = require("../middleware");

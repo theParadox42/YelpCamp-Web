@@ -6,18 +6,15 @@
 */
 
 // Dependents
-var express     = require("express"),
-    router      = express.Router({ mergeParams: true }),
-    mongoose    = require("mongoose"),
+var router      = require("express").Router({ mergeParams: true }),
     passport    = require("passport"),
     Campground  = require("../models/campground"),
     User        = require("../models/user"),
-    Comment     = require("../models/comment")
+    Comment     = require("../models/comment"),
     middleware  = require("../middleware"),
     sendJSON    = require("../helpers/sendJSON"),
     sinceCreated= require("../helpers/addSinceCreated"),
-    deleteUser  = require("../helpers/deleteUser"),
-    moment      = require("moment");
+    deleteUser  = require("../helpers/deleteUser");
 
 //My first version of a YelpCamp API
 router.get("/", function(req, res){
@@ -229,7 +226,6 @@ router.delete("/campgrounds/:id", middleware.api.ownsCampgroundOnly, function(re
 // COMMENTS
 router.post("/campgrounds/:id/comments", middleware.api.loggedInOnly, function(req, res){
 	Campground.findById(req.params.id, function(err, campground){
-		var campgroundPath = "/campgrounds/"+req.params.id;
 		if(err){
             sendJSON(res, { message: "Error finding associated campground", error: err }, "error");
 		} else if(campground){
